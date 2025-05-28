@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>메인 페이지</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+    :root {
+      --primary: #007bff;
+      --secondary: #f8f9fa;
+      --radius: 6px;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      justify-content: flex-start; /* 가로 중앙 */
+      align-items: center; /* 세로 중앙 */
+      background: var(--secondary);
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 100vh;
+      position: relative; /* 채팅 버튼 위치 기준 */
+    }
+
+    .boards-container {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .board-section {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      flex: 1;
+      min-width: 250px;
+      max-height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 제목 대신 큰 버튼으로 */
+    .board-btn {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 1rem 0;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      margin-bottom: 1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .board-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .post-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .post-list li {
+      border-bottom: 1px solid #eee;
+      padding: 0.4rem 0.25rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .post-list li:hover {
+      background-color: #f0f8ff;
+    }
+
+    .post-title {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    .post-preview {
+      font-size: 0.85rem;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 오른쪽 상단 채팅방 버튼 */
+    .chatroom-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.7rem 1.2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chatroom-btn:hover {
+      background-color: #0056b3;
+    }
+    .main-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 6.5rem;
+      color:navy;
+      margin-bottom: 5rem;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <h1 class="main-title">MJust now</h1> 
+  <div class="boards-container">
+    <section class="board-section" id="board-taxi">
+      <a href="board.html?category=taxi" class="board-btn" data-category="taxi">기흥역 택시 모집</a>
+      <ul class="post-list" id="posts-taxi"></ul>
+    </section>
+
+    <section class="board-section" id="board-dorm">
+      <a href="board.html?category=dorm" class="board-btn" data-category="dorm">기숙사생 도움</a>
+      <ul class="post-list" id="posts-dorm"></ul>
+    </section>
+
+    <section class="board-section" id="board-living">
+      <a href="board.html?category=living" class="board-btn" data-category="living">자취생 도움</a>
+      <ul class="post-list" id="posts-living"></ul>
+    </section>
+  </div>
+
+  <a href="chat_list.html" class="chatroom-btn" aria-label="채팅방 목록 이동">채팅방</a>
+
+  <script>
+    // 예시 최신 글 데이터
+    const examplePosts = {
+      taxi: [
+        { id: 101, title: "택시 같이 타실 분?", content: "오늘 저녁 7시에 기흥역 앞에서 모일 예정입니다." },
+        { id: 102, title: "기흥역 출발 택시 모임", content: "내일 아침 8시에 출발할 분 구해요." },
+        { id: 103, title: "야간 택시 모집합니다", content: "심야 시간 택시 같이 타실 분 연락주세요." },
+      ],
+      dorm: [
+        { id: 201, title: "기숙사 청소 도와주세요", content: "이번 주말에 같이 청소할 사람 찾습니다." },
+        { id: 202, title: "냉장고 고장났어요", content: "기숙사 냉장고가 작동하지 않습니다." },
+        { id: 203, title: "기숙사 내 물품 공유", content: "필요한 물품 있으면 알려주세요." },
+      ],
+      living: [
+        { id: 301, title: "자취생끼리 식사 같이해요", content: "이번 주 토요일 저녁 같이 식사할 사람 구해요." },
+        { id: 302, title: "집에서 같이 공부할 사람", content: "집에서 공부 모임 하려고 합니다." },
+        { id: 303, title: "자취 방구하기", content: "좋은 방 있으면 추천해주세요." },
+      ],
+    };
+
+    function renderPosts(category) {
+      const posts = examplePosts[category] || [];
+      const ul = document.getElementById(`posts-${category}`);
+      ul.innerHTML = posts.slice(0,3).map(post => `
+        <li tabindex="0" onclick="location.href='post.html?id=${post.id}'">
+          <span class="post-title">${post.title}</span>
+          <span class="post-preview">${post.content}</span>
+        </li>
+      `).join('');
+    }
+
+    ['taxi', 'dorm', 'living'].forEach(cat => renderPosts(cat));
+  </script>
+</body>
+</html>

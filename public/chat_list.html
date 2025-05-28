@@ -1,0 +1,94 @@
+<!-- chat_list.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>채팅 목록</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .chat-preview {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      background: #ccc;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      margin-right: 1rem;
+    }
+
+    .chat-info {
+      flex-grow: 1;
+    }
+
+    .chat-name {
+      font-weight: bold;
+    }
+
+    .chat-meta {
+      font-size: 0.85rem;
+      color: gray;
+    }
+
+    .empty, .error {
+      padding: 1rem;
+      color: gray;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="#" id="back-btn">뒤로가기</a>
+  </nav>
+
+  <div class="container">
+    <h2>대화방 목록</h2>
+    <div id="chat-list"></div>
+  </div>
+
+  <script>
+    const chatListEl = document.getElementById('chat-list');
+
+    fetch('/api/chats')
+      .then(res => res.json())
+      .then(chats => {
+        if (!chats.length) {
+          chatListEl.innerHTML = '<div class="empty">대화방이 없습니다.</div>';
+          return;
+        }
+
+        chatListEl.innerHTML = chats.map(chat => `
+          <a href="chat_room.html?id=${chat.id}" class="chat-preview">
+            <div class="chat-avatar">💬</div>
+            <div class="chat-info">
+              <div class="chat-name">${chat.name || '이름 없음'}</div>
+              <div class="chat-meta">${chat.participants.length}명 참여</div>
+            </div>
+          </a>
+        `).join('');
+      })
+      .catch(err => {
+        chatListEl.innerHTML = '<div class="error">대화방 목록을 불러오는 중 오류 발생</div>';
+        console.error(err);
+      });
+
+    document.getElementById('back-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.history.back();
+    });
+  </script>
+</body>
+</html>

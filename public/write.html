@@ -1,0 +1,88 @@
+<!-- write.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>글 작성</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="#" id="back-btn">목록으로</a>
+  </nav>
+  
+  <div class="container">
+    <form id="write-form" class="card">
+      <h2>글 작성</h2>
+      <label for="category">카테고리:</label>
+      <select id="category" required>
+        <option value="">선택</option>
+        <option value="taxi">기흥역 택시 모집</option>
+        <option value="dorm">기숙사생 도움</option>
+        <option value="living">자취생 도움</option>
+      </select>
+
+      <label for="max-participants">최대 인원 수:</label>
+      <input type="number" id="max-participants" min="1" max="10" required />
+
+      <label for="title">제목:</label>
+      <input type="text" id="title" required />
+
+      <label for="content">내용:</label>
+      <textarea id="content" class="textarea" required></textarea>
+
+      <button type="submit" class="btn">등록</button>
+    </form>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const categorySelect = document.getElementById('category');
+    const maxParticipantsInput = document.getElementById('max-participants');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+
+    const categoryFromUrl = urlParams.get('category');
+    if (categoryFromUrl) {
+      categorySelect.value = categoryFromUrl;
+    }
+
+    const form = document.getElementById('write-form');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const postData = {
+        category: categorySelect.value,
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        author: '익명',
+        maxParticipants: parseInt(maxParticipantsInput.value, 10)
+      };
+
+      fetch('/write', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      })
+      .then(res => {
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          alert('작성 실패');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('서버 오류');
+      });
+    });
+
+    document.getElementById('back-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.history.back();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>게시판</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: #f9fafb;
+      color: #111827;
+      font-family: 'Noto Sans KR', sans-serif, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 960px;
+      margin: 1.5rem auto;
+      padding: 0 1rem 3rem;
+    }
+    h1#board-title {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #2563eb;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 0.5rem;
+    }
+    #write-btn {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    #write-btn:hover {
+      background-color: #1d4ed8;
+    }
+    #search {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: 1.5px solid #d1d5db;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.3s ease;
+    }
+    #search:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    }
+    #post-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #post-list li {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      transition: background-color 0.2s ease;
+    }
+    #post-list li:last-child {
+      border-bottom: none;
+    }
+    #post-list li:hover {
+      background-color: #f0f4ff;
+    }
+    #post-list li a {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: block;
+      word-break: break-word;
+    }
+    #post-list li a:hover {
+      text-decoration: underline;
+    }
+    /* 반응형 */
+    @media (max-width: 600px) {
+      h1#board-title {
+        font-size: 1.5rem;
+      }
+      #write-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+      }
+      #search {
+        font-size: 0.9rem;
+      }
+      #post-list li {
+        padding: 0.8rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">Home</a>
+  </nav>
+
+  <div class="container">
+    <h1 id="board-title">게시판</h1>
+
+    <a id="write-btn" href="#">글쓰기</a>
+
+    <input type="text" id="search" placeholder="제목 검색..." autocomplete="off" />
+
+    <ul id="post-list">
+      <!-- 글 목록이 여기에 표시됨 -->
+    </ul>
+  </div>
+
+  <script>
+    // URL에서 category 파라미터 가져오기 함수
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    const category = getParam('category');
+
+    // 게시판 제목 매핑
+    const boardTitleMap = {
+      taxi: '기흥역 택시 모집',
+      offcampus: '자취생 도움',
+      dorm: '기숙사생 도움'
+    };
+
+    // 제목 설정
+    document.getElementById('board-title').textContent = boardTitleMap[category] || '게시판';
+
+    // 글쓰기 버튼 링크 설정
+    const writeBtn = document.getElementById('write-btn');
+    writeBtn.href = `write.html?category=${category || ''}`;
+
+    // 글 목록 요소, 검색 input
+    const postListEl = document.getElementById('post-list');
+    const searchInput = document.getElementById('search');
+
+    // 서버에서 글 불러오기 (카테고리 필터링 포함)
+    fetch(`/api/posts?category=${encodeURIComponent(category || '')}`)
+      .then(res => res.json())
+      .then(posts => {
+        let filteredPosts = posts;
+
+        // 렌더링 함수
+        function renderPosts(postsToRender) {
+          if (!postsToRender.length) {
+            postListEl.innerHTML = '<li>게시물이 없습니다.</li>';
+            return;
+          }
+          postListEl.innerHTML = postsToRender.map(post =>
+            `<li><a href="post.html?id=${post.id}">${escapeHtml(post.title)}</a></li>`
+          ).join('');
+        }
+
+        renderPosts(filteredPosts);
+
+        // 검색 필터링 처리
+        searchInput.addEventListener('input', e => {
+          const keyword = e.target.value.toLowerCase();
+          const filtered = filteredPosts.filter(post =>
+            post.title.toLowerCase().includes(keyword)
+          );
+          renderPosts(filtered);
+        });
+      })
+      .catch(() => {
+        postListEl.innerHTML = '<li>글을 불러오는 중 오류가 발생했습니다.</li>';
+      });
+
+    // XSS 방지용 간단 escape 함수
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[m];
+      });
+    }
+  </script>
+</body>
+</html>

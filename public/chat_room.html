@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>채팅방</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="chat_list.html">← 대화 목록</a>
+    <span>채팅방</span>
+  </nav>
+
+  <div class="container">
+    <div id="chat-window" class="chat-window"></div>
+
+    <div class="chat-input">
+      <input type="text" id="chat-message" placeholder="메시지를 입력하세요" />
+      <button id="send">전송</button>
+    </div>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-message');
+    const sendBtn = document.getElementById('send');
+
+    // URL에서 chat방 id 가져오기
+    const params = new URLSearchParams(window.location.search);
+    const chatId = params.get('id');
+    if (!chatId) {
+      chatWindow.innerHTML = '<p>잘못된 채팅방입니다.</p>';
+    }
+
+    // 로컬스토리지 키
+    const storageKey = `chat_${chatId}`;
+
+    // 이전 메시지 불러오기
+    function loadMessages() {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    // 메시지 렌더링
+    function renderMessages() {
+      const messages = loadMessages();
+      chatWindow.innerHTML = messages.map(m => `
+        <div class="message ${m.sender === '사용자' ? 'my-message' : 'other-message'}">
+          <div class="bubble">${m.text}</div>
+        </div>
+      `).join('');
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // 메시지 저장
+    function saveMessage(sender, text) {
+      const messages = loadMessages();
+      messages.push({ sender, text });
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      const sender = '사용자'; // 고정 (추후 로그인 연동 가능)
+
+      saveMessage(sender, text);
+      renderMessages();
+      chatInput.value = '';
+      chatInput.focus();
+    });
+
+    // Enter 키로 전송
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    renderMessages();
+  </script>
+</body>
+</html>
