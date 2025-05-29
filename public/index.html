@@ -140,7 +140,21 @@
       text-align: center;
     }
 
+    /* swagger-ui 스타일 */
+    #swagger-ui {
+      width: 100%;
+      max-width: 960px;
+      margin-top: 3rem;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1rem;
+      box-sizing: border-box;
+    }
   </style>
+
+  <!-- Swagger UI CSS 추가 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
 </head>
 <body>
   <h1 class="main-title">MJust now</h1> 
@@ -160,6 +174,12 @@
       <ul class="post-list" id="posts-living"></ul>
     </section>
   </div>
+
+  <!-- Swagger UI 표시 공간 -->
+  <section>
+    <h2>API 문서</h2>
+    <div id="swagger-ui"></div>
+  </section>
 
   <a href="chat_list.html" class="chatroom-btn" aria-label="채팅방 목록 이동">채팅방</a>
 
@@ -195,6 +215,25 @@
     }
 
     ['taxi', 'dorm', 'living'].forEach(cat => renderPosts(cat));
+  </script>
+
+  <!-- Swagger UI JS 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+
+  <script>
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: "https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/v3/api-docs",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "StandaloneLayout"
+      });
+    };
   </script>
 </body>
 </html>
