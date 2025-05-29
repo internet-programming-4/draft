@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>채팅 목록</title>
+  <title>채팅 목록 + Swagger UI</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Swagger UI CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui.css" />
+  
   <style>
+    /* 기존 스타일 + swagger-ui 영역 크기 설정 */
     .chat-preview {
       display: flex;
       align-items: center;
@@ -45,6 +50,14 @@
       color: gray;
       text-align: center;
     }
+
+    /* Swagger UI 전용 영역 스타일 */
+    #swagger-ui {
+      margin-top: 2rem;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   </style>
 </head>
 <body>
@@ -56,9 +69,17 @@
   <div class="container">
     <h2>대화방 목록</h2>
     <div id="chat-list"></div>
+
+    <!-- Swagger UI 삽입 위치 -->
+    <div id="swagger-ui"></div>
   </div>
 
+  <!-- Swagger UI JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui-standalone-preset.js"></script>
+
   <script>
+    // 기존 대화방 목록 불러오기
     const chatListEl = document.getElementById('chat-list');
 
     fetch('/api/chats')
@@ -88,6 +109,20 @@
       e.preventDefault();
       window.history.back();
     });
+
+    // Swagger UI 초기화
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: '/v3/api-docs', // 네 swagger json 엔드포인트 맞게 수정
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "StandaloneLayout"
+      });
+    };
   </script>
 </body>
 </html>
