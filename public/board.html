@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>게시판</title>
+  <title>게시판 + Swagger UI</title>
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Swagger UI CSS 추가 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui.css" />
+
   <style>
     body {
       background: #f9fafb;
@@ -99,6 +103,14 @@
         padding: 0.8rem 1rem;
       }
     }
+
+    /* Swagger UI 영역 스타일 */
+    #swagger-ui {
+      margin-top: 3rem;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   </style>
 </head>
 <body>
@@ -112,11 +124,16 @@
     <a id="write-btn" href="#">글쓰기</a>
 
     <input type="text" id="search" placeholder="제목 검색..." autocomplete="off" />
-    // 글 목록 표시
-    <ul id="post-list">
+    <!-- 글 목록 표시 -->
+    <ul id="post-list"></ul>
 
-    </ul>
+    <!-- Swagger UI 삽입 위치 -->
+    <div id="swagger-ui"></div>
   </div>
+
+  <!-- Swagger UI JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4/swagger-ui-standalone-preset.js"></script>
 
   <script>
     // URL에서 category 파라미터 가져오기 함수
@@ -189,6 +206,20 @@
         }[m];
       });
     }
+
+    // Swagger UI 초기화
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: '/v3/api-docs',  // swagger json 경로에 맞게 수정
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "StandaloneLayout"
+      });
+    };
   </script>
 </body>
 </html>
