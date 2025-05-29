@@ -6,130 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>글 보기</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      background: #f9fafb;
-      color: #111827;
-      font-family: 'Noto Sans KR', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 960px;
-      margin: 1.5rem auto;
-      padding: 0 1rem 3rem;
-    }
-    nav.navbar {
-      background-color: #2563eb;
-      padding: 0.5rem 1rem;
-    }
-    nav.navbar a {
-      color: #fff;
-      margin-right: 1rem;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    nav.navbar a:hover {
-      text-decoration: underline;
-    }
-    article.card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
-    article.card h2 {
-      margin-top: 0;
-      color: #2563eb;
-    }
-    article.card p {
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-    .btn {
-      background-color: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 0.5rem 1.2rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-    }
-    .btn:hover {
-      background-color: #1d4ed8;
-    }
-    .btn-outline {
-      background-color: transparent;
-      color: #2563eb;
-      border: 2px solid #2563eb;
-    }
-    .btn-outline:hover {
-      background-color: #2563eb;
-      color: #fff;
-    }
-    .btn-outline[style*="color:red"] {
-      border-color: red;
-      color: red;
-    }
-    .btn-outline[style*="color:red"]:hover {
-      background-color: red;
-      color: #fff;
-    }
-    .comment {
-      background: #fff;
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .comment h3 {
-      margin-top: 0;
-      color: #2563eb;
-    }
-    .comment-list {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 1rem;
-    }
-    .comment-item {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #e5e7eb;
-      word-break: break-word;
-    }
-    textarea.textarea {
-      width: 100%;
-      min-height: 60px;
-      border-radius: 12px;
-      border: 1.5px solid #d1d5db;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      resize: vertical;
-      font-family: inherit;
-    }
-    textarea.textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
-    }
-    @media (max-width: 600px) {
-      .container {
-        padding: 0 1rem 1.5rem;
-      }
-      nav.navbar a {
-        font-size: 0.9rem;
-      }
-      .btn {
-        padding: 0.4rem 1rem;
-        font-size: 0.9rem;
-      }
-      textarea.textarea {
-        font-size: 0.9rem;
-      }
-    }
-  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -171,27 +47,12 @@
     const commentListEl = document.getElementById('comment-list');
     const participantCountEl = document.getElementById('participant-count');
 
-    function escapeHtml(text) {
-      return text.replace(/[&<>"']/g, function(m) {
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[m];
-      });
-    }
-
     function loadPost() {
       fetch(`/api/posts/${postId}`)
-        .then(res => {
-          if (!res.ok) throw new Error('글을 불러오는 중 오류가 발생했습니다.');
-          return res.json();
-        })
+        .then(res => res.json())
         .then(post => {
-          postTitleEl.textContent = escapeHtml(post.title);
-          postContentEl.textContent = escapeHtml(post.content);
+          postTitleEl.textContent = post.title;
+          postContentEl.textContent = post.content;
           participantCountEl.textContent = `${post.participants?.length || 0}/${post.maxParticipants || 0} 참여 중`;
           renderComments(post.comments || []);
         })
@@ -208,7 +69,7 @@
         return;
       }
       commentListEl.innerHTML = comments.map(c =>
-        `<div class="comment-item"><strong>${escapeHtml(c.author || '익명')}</strong> : ${escapeHtml(c.text)}</div>`
+        `<div class="comment-item"><strong>${c.author || '익명'}</strong> : ${c.text}</div>`
       ).join('');
     }
 
@@ -224,11 +85,14 @@
         body: JSON.stringify({ text, author: '익명' })
       })
       .then(res => {
-        if (res.ok) return res.json();
-        else throw new Error('댓글 작성 실패');
+        if (res.ok) {
+          document.getElementById('comment-input').value = '';
+          return res.json();
+        } else {
+          throw new Error('댓글 작성 실패');
+        }
       })
       .then(updatedPost => {
-        document.getElementById('comment-input').value = '';
         renderComments(updatedPost.comments || []);
       })
       .catch(err => {
