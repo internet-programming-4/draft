@@ -5,21 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>채팅방</title>
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Swagger UI CSS 추가 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
-  <style>
-    /* swagger-ui 컨테이너 스타일 (필요시 조정) */
-    #swagger-ui {
-      max-width: 960px;
-      margin: 3rem auto;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -35,12 +20,6 @@
       <button id="send">전송</button>
     </div>
   </div>
-
-  <!-- Swagger UI 표시 공간 -->
-  <section>
-    <h2 style="max-width:960px; margin: 2rem auto 1rem;">API 문서</h2>
-    <div id="swagger-ui"></div>
-  </section>
 
   <script>
     const chatWindow = document.getElementById('chat-window');
@@ -99,25 +78,6 @@
     });
 
     renderMessages();
-  </script>
-
-  <!-- Swagger UI JS 라이브러리 -->
-  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
-
-  <script>
-    window.onload = () => {
-      SwaggerUIBundle({
-        url: "https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/v3/api-docs",
-        dom_id: '#swagger-ui',
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIStandalonePreset
-        ],
-        layout: "StandaloneLayout"
-      });
-    };
   </script>
 </body>
 </html>
