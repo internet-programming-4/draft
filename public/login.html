@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Window Landing Page</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .landing-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            width: 350px;
+            height: 450px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            color: #333;
+        }
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .sub-title {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        .google-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            cursor: pointer;
+            padding: 10px 20px;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+        .google-login-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .google-login-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+        .btn-text {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <div
+            class="card"
+            style="background-image: url('./assets/card.png');"
+        >
+            <div class="title">
+                Smart Window
+            </div>
+            <div class="sub-title">
+                당신을 위한 똑똑한 창문 제어를 지금 바로 시작해 보세요!
+            </div>
+            <div class="google-login-btn" id="googleLoginBtn">
+                <img src="./assets/google_icon.png" alt="Google Icon" />
+                <div class="btn-text">Continue with Google</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase 설정 예시 (본인의 설정으로 변경)
+         const firebaseConfig = {
+            apiKey: "AIzaSyDb-a_W5Yg00eU6TyrzV8JVnE_4Opnf4WY",
+            authDomain: "find-people-f3c41.firebaseapp.com",
+            projectId: "find-people-f3c41",
+            storageBucket: "find-people-f3c41.firebasestorage.app",
+            messagingSenderId: "722688483596",
+            appId: "1:722688483596:web:a9f23a2a23b589e7f2a929",
+            measurementId: "G-9DZSJRG94B"
+        };
+
+
+        // Firebase 초기화
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const db = firebase.firestore();
+
+        // 로그인 처리
+        document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                const userRef = db.collection("users").doc(user.uid);
+                const docSnap = await userRef.get();
+
+                if (!docSnap.exists) {
+                    await userRef.set({
+                        email: user.email,
+                        name: user.displayName,
+                        profile_img: "",
+                        location: "",
+                        humidity_over: null,
+                        humidity_under: null,
+                        temp_over: null,
+                        temp_under: null,
+                    });
+
+                    await userRef.collection("sensor_data").add({
+                        humidity: 0,
+                        temperature: 0,
+                        fine_dust: 0,
+                        updated_at: new Date()
+                    });
+
+                    await userRef.collection("fine_dust_status").add({
+                        good: false,
+                        moderate: false,
+                        bad: true,
+                        very_bad: true
+                    });
+
+                    await userRef.collection("weather_status").add({
+                        clear: false,
+                        cloudy: false,
+                        rainy: true,
+                        snowy: true,
+                    });
+
+                    await userRef.collection("window_control").add({
+                        status: "closed",
+                        controlled_at: new Date()
+                    });
+                }
+
+                // 로그인 성공 후 페이지 이동
+                window.location.replace("/setting");
+            } catch (error) {
+                console.error("Google 로그인 에러:", error);
+                alert("로그인에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+
+        // 로그인 상태 변화 감지 (페이지 로드 시)
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // 로그인 된 상태라면 설정 페이지로 이동
+                window.location.replace("/setting");
+            }
+        });
+    </script>
+</body>
+</html>
