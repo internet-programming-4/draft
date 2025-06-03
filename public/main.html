@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>메인 페이지</title>
+  <link rel="stylesheet" href="./styles/index-style.css" />
+</head>
+
+<body>
+  <h1 class="main-title">MJust now</h1> 
+  <div class="boards-container" id="boardsContainer"></div>
+  <div class="top-btns">
+    <a href="chat_list.html" class="chatroom-btn" aria-label="채팅방 목록 이동">채팅방</a>
+    <a href="write.html" class="post-btn" aria-label="글 작성 이동">글 작성</a>
+  </div>
+</body>
+
+<script>
+  const postMap = new Map();
+
+  async function fetchMainBoards() {
+    try {
+      const idToken = localStorage.getItem("idToken");
+      console.log(idToken);
+
+      const res = await fetch(`https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/api/board/main`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if(!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`메인페이지 조회 에러 발생: ${res.status} ${errorText}`)
+      }
+
+      const data = await res.json();
+      console.log("data:", data);
+
+      data.forEach(category => {
+        const {categoryId, categoryName, boardResponseList} = category;
+        postMap[categoryId] = {
+          categoryName: categoryName,
+          posts: boardResponseList
+        };
+      });
+
+      console.log(postMap);
+
+      renderPosts();
+
+    } catch(error) {
+      console.log("요청 실패:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchMainBoards();
+  });
+</script>
+
+<script>
+  function renderPosts() {
+    const container = document.getElementById("boardsContainer");
+    Object.entries(postMap).forEach(([categoryId, {categoryName, posts}]) => {
+      // category section
+      const section = document.createElement("section");
+      section.className = "board-section";
+
+      // category name
+      const btn = document.createElement("a");
+      btn.className = "board-btn";
+      btn.innerText = categoryName;
+      btn.onclick = () => location.href = `board.html?categoryId=${categoryId}`;
+
+      // posts
+      const ul = document.createElement("ul");
+      ul.className = "post-list";
+      ul.id = `posts-${categoryId}`;
+
+      posts.slice(0, 3).forEach(post => {
+        const li = document.createElement("li");
+        li.onclick = () => location.href = `post.html?id=${post.id}`;
+
+        const title = document.createElement("span");
+        title.className = "post-title";
+        title.innerText = post.title;
+
+        const content = document.createElement("span");
+        content.className = "post-content";
+        content.innerText = post.content;
+
+        li.appendChild(title);
+        li.appendChild(content);
+        ul.appendChild(li);
+      });
+
+      section.appendChild(btn);
+      section.appendChild(ul);
+      container.appendChild(section);
+    });
+  }
+</script>
+
+</html>

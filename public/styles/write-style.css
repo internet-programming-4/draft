@@ -1,0 +1,218 @@
+:root {
+  --primary: #2563eb;
+  /* blue-600 */
+  --secondary: #f3f4f6;
+  /* gray-100 */
+  --text: #111827;
+  /* gray-900 */
+  --radius: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+}
+
+body {
+  background: var(--secondary);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* write-form 내 라벨과 입력창 한 줄 정렬 */
+#write-form label {
+  display: inline-block;
+  width: 100px;
+  /* 라벨 너비 고정 */
+  font-weight: 600;
+  vertical-align: middle;
+  margin-bottom: 0.5rem;
+}
+
+#write-form select,
+#write-form input[type="number"],
+#write-form input[type="text"],
+#write-form textarea {
+  display: inline-block;
+  width: calc(100% - 110px);
+  /* 라벨 너비 + 여백 10px 제외 */
+  vertical-align: middle;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+#write-form textarea {
+  vertical-align: top;
+  height: 150px;
+  resize: vertical;
+}
+
+/* 나머지 기존 스타일 유지 */
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius);
+}
+
+.textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.list {
+  list-style: none;
+}
+
+.list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.list li a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.comment {
+  margin-top: 1rem;
+}
+
+.comment-header {
+  font-weight: 600;
+}
+
+.comment-body {
+  margin-top: 0.25rem;
+}
+
+#comment-input {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.chat-window {
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.chat-input button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+.chat-preview {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  text-decoration: none;
+  color: inherit;
+}
+
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  background: #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  margin-right: 1rem;
+}
+
+.chat-info {
+  flex-grow: 1;
+}
+
+.chat-name {
+  font-weight: bold;
+}
+
+.chat-meta {
+  font-size: 0.85rem;
+  color: gray;
+}

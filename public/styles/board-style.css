@@ -1,0 +1,109 @@
+body {
+    background: #f9fafb;
+    color: #111827;
+    font-family: 'Noto Sans KR', sans-serif, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 960px;
+    margin: 1.5rem auto;
+    padding: 0 1rem 3rem;
+}
+
+h1#board-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #2563eb;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 0.5rem;
+}
+
+#write-btn {
+    display: inline-block;
+    background-color: #2563eb;
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#write-btn:hover {
+    background-color: #1d4ed8;
+}
+
+#search {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #d1d5db;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s ease;
+}
+
+#search:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+}
+
+#post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#post-list li {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.2s ease;
+}
+
+#post-list li:last-child {
+    border-bottom: none;
+}
+
+#post-list li:hover {
+    background-color: #f0f4ff;
+}
+
+#post-list li a {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: block;
+    word-break: break-word;
+}
+
+#post-list li a:hover {
+    text-decoration: underline;
+}
+
+/* 반응형 */
+@media (max-width: 600px) {
+    h1#board-title {
+        font-size: 1.5rem;
+    }
+
+    #write-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #search {
+        font-size: 0.9rem;
+    }
+
+    #post-list li {
+        padding: 0.8rem 1rem;
+    }
+}

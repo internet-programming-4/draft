@@ -1,3 +1,6 @@
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 <!-- post.html -->
 <!DOCTYPE html>
 <html lang="ko">
@@ -5,11 +8,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>글 보기</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="./styles/write-style.css" />
 </head>
 <body>
   <nav class="navbar">
-    <a href="index.html">Home</a>
+    <a href="main.html">Home</a>
     <a href="#" id="back-btn">목록으로</a>
   </nav>
 
@@ -20,7 +23,7 @@
       <p id="participant-count">0/0 참여 중</p>
       <div style="margin-top:1rem; display: flex; gap: 0.5rem;">
         <button id="participate" class="btn">참여</button>
-        <button id="edit" class="btn btn-outline">수정</button>
+        <!-- <button id="edit" class="btn btn-outline">수정</button> -->
         <button id="delete" class="btn btn-outline" style="color:red;border-color:red;">삭제</button>
       </div>
     </article>
@@ -28,7 +31,6 @@
     <section class="card comment">
       <h3>댓글</h3>
       <div id="comment-list" class="comment-list">
-        <!-- 댓글 리스트 -->
       </div>
       <form id="comment-form">
         <textarea id="comment-input" class="textarea" placeholder="댓글 작성" required></textarea><br/>
@@ -36,113 +38,136 @@
       </form>
     </section>
   </div>
+</body>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const postId = params.get('id');
-    const category = params.get('category');
+<!-- firebase 초기화 -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDb-a_W5Yg00eU6TyrzV8JVnE_4Opnf4WY",
+    authDomain: "find-people-f3c41.firebaseapp.com",
+    projectId: "find-people-f3c41",
+    storageBucket: "find-people-f3c41.firebasestorage.app",
+    messagingSenderId: "722688483596",
+    appId: "1:722688483596:web:a9f23a2a23b589e7f2a929",
+    measurementId: "G-9DZSJRG94B"
+  };
 
-    const postTitleEl = document.getElementById('post-title');
-    const postContentEl = document.getElementById('post-content');
-    const commentListEl = document.getElementById('comment-list');
-    const participantCountEl = document.getElementById('participant-count');
+  firebase.initializeApp(firebaseConfig);
+</script>
 
-    function loadPost() {
-      fetch(`/api/posts/${postId}`)
-        .then(res => res.json())
-        .then(post => {
-          postTitleEl.textContent = post.title;
-          postContentEl.textContent = post.content;
-          participantCountEl.textContent = `${post.participants?.length || 0}/${post.maxParticipants || 0} 참여 중`;
-          renderComments(post.comments || []);
-        })
-        .catch(err => {
-          postTitleEl.textContent = '글을 불러오는 중 오류가 발생했습니다.';
-          postContentEl.textContent = '';
-          console.error(err);
-        });
-    }
-
-    function renderComments(comments) {
-      if (comments.length === 0) {
-        commentListEl.innerHTML = '<p>댓글이 없습니다.</p>';
-        return;
-      }
-      commentListEl.innerHTML = comments.map(c =>
-        `<div class="comment-item"><strong>${c.author || '익명'}</strong> : ${c.text}</div>`
-      ).join('');
-    }
-
-    const commentForm = document.getElementById('comment-form');
-    commentForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const text = document.getElementById('comment-input').value.trim();
-      if (!text) return alert('댓글 내용을 입력하세요.');
-
-      fetch(`/api/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ text, author: '익명' })
-      })
-      .then(res => {
-        if (res.ok) {
-          document.getElementById('comment-input').value = '';
-          return res.json();
-        } else {
-          throw new Error('댓글 작성 실패');
+<!-- 게시글 조회 API -->
+<script>
+  async function fetchBoard() {
+    try {
+      const res = await fetch(`https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/api/board/${postId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
         }
-      })
-      .then(updatedPost => {
-        renderComments(updatedPost.comments || []);
-      })
-      .catch(err => {
+      });
+
+      if(!res.ok) {
+        const errorText = await res;
+        throw new Error(`게시글 조회 에러 발생: ${res.status} ${errorText}`)
+      }
+
+      const postData = await res.json();
+      postTitleEl.textContent = postData.title || '제목 없음';
+      postContentEl.textContent = postData.content || '내용 없음';
+      participantCountEl.textContent = `참여인원: ${postData.currentParticipants || 0}/${postData.number || 0}`;
+
+    } catch(error) {
+      console.log("요청 실패:", error);
+    }
+  }
+</script>
+
+<!-- 게시글 삭제 API -->
+<script>
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById('delete').addEventListener('click', async () => {
+          if (!confirm('정말 삭제하시겠습니까?')) return;
+
+          const idToken = await user.getIdToken(true);  
+
+          fetch(`https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/api/board/${postId}`, { 
+            method: 'DELETE',
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${idToken}`
+            }})
+            .then(res => {
+              if (res.ok) {
+                alert('삭제되었습니다.');
+                window.location.href = "/public/main.html";
+              } else {
+                alert('삭제 실패');
+              }
+            })
+            .catch(err => {
+              alert('서버 오류');
+              console.error(err);
+          });
+        });
+    } else {
+      document.getElementById('participate').addEventListener('click', () => {
+        alert("로그인이 필요한 서비스입니다.");
+      });
+    } 
+  
+  });
+</script>
+
+<!-- 게시글 참여 API -->
+<script>
+  firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('participate').addEventListener('click', async () => {
+      try {
+        const idToken = await user.getIdToken(true);  
+
+        const res = await fetch(`https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/api/board/join?id=${postId}`, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${idToken}`
+          }
+        });
+
+        if (!res.ok) throw new Error('참여 실패');
+
+        const updatedPost = await res.json();
+        participantCountEl.textContent = `참여인원: ${updatedPost.participants.length}/${updatedPost.maxParticipants}`;
+      } catch (err) {
         alert(err.message);
         console.error(err);
-      });
+      }
     });
-
-    document.getElementById('delete').addEventListener('click', () => {
-      if (!confirm('정말 삭제하시겠습니까?')) return;
-      fetch(`/api/posts/${postId}`, { method: 'DELETE' })
-        .then(res => {
-          if (res.ok) {
-            alert('삭제되었습니다.');
-            window.location.href = `board.html?category=${encodeURIComponent(category || '')}`;
-          } else {
-            alert('삭제 실패');
-          }
-        })
-        .catch(err => {
-          alert('서버 오류');
-          console.error(err);
-        });
-    });
-
-    document.getElementById('edit').addEventListener('click', () => {
-      window.location.href = `write.html?id=${postId}&category=${encodeURIComponent(category || '')}`;
-    });
-
+  } else {
     document.getElementById('participate').addEventListener('click', () => {
-      fetch(`/api/posts/${postId}/participate`, { method: 'POST' })
-        .then(res => {
-          if (res.ok) return res.json();
-          else throw new Error('참여 실패');
-        })
-        .then(updatedPost => {
-          participantCountEl.textContent = `${updatedPost.participants.length}/${updatedPost.maxParticipants} 참여 중`;
-        })
-        .catch(err => {
-          alert(err.message);
-          console.error(err);
-        });
+      alert("로그인이 필요한 서비스입니다.");
     });
+  }
+});
+</script>
 
-    document.getElementById('back-btn').addEventListener('click', (e) => {
-      e.preventDefault();
-      window.history.back();
-    });
+<!-- UI -->
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get('id');
+  const category = params.get('category');
 
-    loadPost();
-  </script>
-</body>
+  const postTitleEl = document.getElementById('post-title');
+  const postContentEl = document.getElementById('post-content');
+  const commentListEl = document.getElementById('comment-list');
+  const participantCountEl = document.getElementById('participant-count');
+
+  fetchBoard();
+
+  document.getElementById('back-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.history.back();
+  });
+</script>
 </html>

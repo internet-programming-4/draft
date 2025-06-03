@@ -3,88 +3,92 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Smart Window Landing Page</title>
+    <link rel="stylesheet" href="./styles/font.css" />
+    <title>Find People</title>
     <style>
-        body, html {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
         }
+
+        body, html {
+            height: 100%;
+            color: #222;
+            background-color: #f8f9fa;
+        }
+
         .landing-container {
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-        .card {
-            width: 350px;
-            height: 450px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            padding: 30px;
-            box-sizing: border-box;
+            padding: 0 20px;
             text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 8px;
             color: #333;
         }
-        .title {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
+
         .sub-title {
-            font-size: 1.1rem;
-            margin-top: 10px;
-            margin-bottom: 30px;
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            color: #666;
         }
+
         .google-login-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
             border-radius: 30px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            padding: 12px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            padding: 10px 20px;
-            user-select: none;
-            transition: background-color 0.3s ease;
+            transition: all 0.25s ease;
+            border: 1px solid #ddd;
         }
+
         .google-login-btn:hover {
-            background-color: #f0f0f0;
+            transform: translateY(-2px);
         }
+
         .google-login-btn img {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             margin-right: 12px;
         }
+
         .btn-text {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 16px;
+            color: #333;
+        }
+
+        img {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="landing-container">
-        <div
-            class="card"
-            style="background-image: url('./assets/card.png');"
-        >
+            <img src="./assets/logo.png" width="160px"></img>
             <div class="title">
-                Smart Window
+                명지대학교 매칭 커뮤니티, Find People
             </div>
             <div class="sub-title">
-                당신을 위한 똑똑한 창문 제어를 지금 바로 시작해 보세요!
+                로그인하고 택시, 배달 등을 함께 할 학우를 찾아보세요!
             </div>
             <div class="google-login-btn" id="googleLoginBtn">
                 <img src="./assets/google_icon.png" alt="Google Icon" />
-                <div class="btn-text">Continue with Google</div>
+                <div class="btn-text">구글로 로그인하기</div>
             </div>
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -103,7 +107,6 @@
             measurementId: "G-9DZSJRG94B"
         };
 
-
         // Firebase 초기화
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -113,56 +116,36 @@
         // 로그인 처리
         document.getElementById("googleLoginBtn").addEventListener("click", async () => {
             try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
+                const loginResult = await auth.signInWithPopup(provider);
+                const user = loginResult.user;  
+                const idToken = await user.getIdToken();  
+                localStorage.setItem("idToken", idToken);
 
-                const userRef = db.collection("users").doc(user.uid);
-                const docSnap = await userRef.get();
+                console.log(idToken);
 
-                if (!docSnap.exists) {
-                    await userRef.set({
-                        email: user.email,
-                        name: user.displayName,
-                        profile_img: "",
-                        location: "",
-                        humidity_over: null,
-                        humidity_under: null,
-                        temp_over: null,
-                        temp_under: null,
-                    });
+                const response = await fetch(`https://port-0-find-people-be-mayzrz244aee60f7.sel4.cloudtype.app/api/user/save?idToken=${idToken}`, {
+                    method: "POST", 
+                    headers: {
+                        "Content-Type": "application/json",
+                        // "Authorization": `Bearer ${idToken}`
+                    },
+                });
 
-                    await userRef.collection("sensor_data").add({
-                        humidity: 0,
-                        temperature: 0,
-                        fine_dust: 0,
-                        updated_at: new Date()
-                    });
+                if (!response.ok) {
+                    const errorText = await response.text();
 
-                    await userRef.collection("fine_dust_status").add({
-                        good: false,
-                        moderate: false,
-                        bad: true,
-                        very_bad: true
-                    });
+                    console.log(response.status);
+                    console.log(errorText);
 
-                    await userRef.collection("weather_status").add({
-                        clear: false,
-                        cloudy: false,
-                        rainy: true,
-                        snowy: true,
-                    });
+                    throw new Error(`로그인 에러 발생: ${response.status} ${errorText}`);
+                } else {
+                    const result = await response.json();
+                    console.log("로그인 성공:", result);
 
-                    await userRef.collection("window_control").add({
-                        status: "closed",
-                        controlled_at: new Date()
-                    });
+                    window.location.replace("/public/main.html");
                 }
-
-                // 로그인 성공 후 페이지 이동
-                window.location.replace("/setting");
             } catch (error) {
-                console.error("Google 로그인 에러:", error);
-                alert("로그인에 실패했습니다. 다시 시도해주세요.");
+                console.error("요청 실패:", error);
             }
         });
 
@@ -170,7 +153,7 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 // 로그인 된 상태라면 설정 페이지로 이동
-                window.location.replace("/setting");
+                // window.location.replace("/public/main.html");
             }
         });
     </script>

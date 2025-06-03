@@ -1,0 +1,153 @@
+:root {
+    --primary: #007bff;
+    --secondary: #f8f9fa;
+    --radius: 6px;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    justify-content: flex-start;
+    /* 가로 중앙 */
+    align-items: center;
+    /* 세로 중앙 */
+    background: var(--secondary);
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    position: relative;
+    /* 채팅 버튼 위치 기준 */
+}
+
+.boards-container {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    width: 100%;
+    max-width: 960px;
+}
+
+.board-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 250px;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 제목 대신 큰 버튼으로 */
+.board-btn {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 1rem 0;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.board-btn:hover {
+    background-color: #0056b3;
+}
+
+.post-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.post-list li {
+    border-bottom: 1px solid #eee;
+    padding: 0.4rem 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.post-list li:hover {
+    background-color: #f0f8ff;
+}
+
+.post-title {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.post-preview {
+    font-size: 0.85rem;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 오른쪽 상단 채팅방 버튼 */
+.chatroom-btn,
+.post-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.7rem 1.2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chatroom-btn:hover,
+.post-btn:hover {
+    background-color: #0056b3;
+}
+
+.main-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: 6.5rem;
+    color: navy;
+    margin-bottom: 5rem;
+    text-align: center;
+}
+
+.post-btn {
+    position: relative;
+}
+
+.top-btns {
+    display: flex;
+    flex-direction: row;
+}
